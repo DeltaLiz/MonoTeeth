@@ -1,0 +1,3 @@
+_target_: src.model.encoder.sam3_encoder.Sam3Encoder
+ckpt: ${sam3_ckpt}
+image_size: 1008

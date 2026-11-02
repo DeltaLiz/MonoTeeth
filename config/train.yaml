@@ -1,0 +1,49 @@
+defaults:
+  - model/encoder: sam3
+  - model/decoder: detr
+  - model/head@model.heads.latent: latent
+  - model/head@model.heads.seg: seg_coord
+  - override hydra/job_logging: none
+  - override hydra/hydra_logging: none
+  - _self_
+
+name: ${now:%Y%m%d_%H%M%S}
+run_dir: runs/train/${name}
+resume: null
+
+sam3_ckpt: pretrained/sam3/sam3.pt
+
+dataset:
+  root: data/monoteeth_data_v2
+  augment: center_1
+  train_crop_index: null  # every crop of each subject
+  test_crop_index: 0
+
+loss:
+  latent_l1: 10.0
+  seg_bce: 1.0
+  seg_dice_loss: 0.1
+
+optim:
+  lr: 2.0e-4
+  weight_decay: 0.01
+  grad_clip: null
+
+train:
+  epochs: 500
+  batch_size: 16  # per GPU
+  num_workers: 8
+  seed: 123
+  amp: false
+  act_ckpt: true  # activation checkpointing of decoder layers
+  max_steps: null
+  log_every: 10  # steps
+  val_every: 10  # epochs
+  ckpt_every: 100  # epochs
+  num_vis: 8
+  best_metric: latent_l1
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
